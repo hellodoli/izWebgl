@@ -12,7 +12,7 @@
   <body>
     <div class="live-controls">
       <div class="btn-group-fixed">
-        <form onsubmit="event.preventDefault()">
+        <form onsubmit="submitForm(event)">
           <fieldset>
             <legend>Camera</legend>
             <div class="form-group row">
@@ -88,8 +88,10 @@
             </div>
 
             <div class="form-group">
-              <button onclick="initControls()">Reset</button>
-              <button onclick="clearr()">Clear Torus</button>
+              <button type="button" onclick="resetControls()">Reset</button>
+              <button type="button" onclick="clearr()">Clear Torus</button>
+              <button type="button" onclick="speedUp()">Speed Up</button>
+              <button type="button" onclick="speedDown()">Speed Down</button>
             </div>
           </fieldset>
         </form>
@@ -104,9 +106,8 @@
       $(document).ready(function() {
         // controls setting
         initControls();
-
         init();
-        createTorusGlobal();
+        //createTorusGlobal();
         render();
       });
     </script>

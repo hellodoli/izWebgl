@@ -17,7 +17,7 @@ const param = {
       max: 20
     },
     z: {
-      default: 40,
+      default: 20,
       min: 1,
       max: 100
     }
@@ -26,6 +26,10 @@ const param = {
 
 
 // controls function
+function submitForm (e) {
+  e.preventDefault();
+}
+
 function setValueInputRangeControl (inputRangeId, inputRangeViewId, param) {
   const $inputRange = $(inputRangeId);
   if ($inputRange.length > 0) {
@@ -73,6 +77,15 @@ function changeCtrVal (ele) {
   }
 }
 
+function resetControls () {
+  initControls();
+  if (camera) {
+    camera.position.x = param.camera.x.default;
+    camera.position.y = param.camera.y.default;
+    camera.position.z = param.camera.z.default;
+  }
+}
+
 
 // webgl function
 function randomInRange (from, to) {
@@ -84,7 +97,7 @@ function randomInRange (from, to) {
 }
 
 function createTorus () {
-  var geometry = new THREE.TorusGeometry(1, .5, 5, 30, Math.PI*2);
+  var geometry = new THREE.TorusGeometry(1.5, 0.5, 5, 30, Math.PI*2);
   var material = new THREE.MeshBasicMaterial({
     color: Math.random() * 0xffffff,
     wireframe: true
@@ -132,21 +145,34 @@ function init () {
   controls.update();
 }
 
+let speed = 0.4;
 function render() {
-  /*if (Math.random() < 0.1) {
+  if (Math.random() < speed) {
     createTorus();
-  }*/
+  }
   
-  /*toruses.forEach(torus => {
+  toruses.forEach(torus => {
     torus.position.y -= .1;
-    torus.rotation.x += .1;
-    torus.rotation.y += .1;
-  });*/
+    //torus.rotation.x += .1;
+    //torus.rotation.y += .1;
+  });
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(render);
 }
 
 function clearr () {
-  scene.remove(torus);
+  if (scene.children.length > 0) {
+    for (let index = 0; index < scene.children.length; index++) {
+      scene.remove(scene.children[index]);
+    }
+  }
+}
+
+function speedUp () {
+  speed += .5;
+}
+
+function speedDown () {
+  speed -= .5;
 }
