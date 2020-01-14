@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.btn-group-fixed {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  min-width: 320px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 4px;
+  z-index: 1000;
+  box-shadow: 3px 3px 5px 6px #ccc;
+}
+
+.btn-group-fixed legend {
+  font-size: 1rem;
+}
+
+.btn-group-fixed .form-group {
+  margin-bottom: .3125rem;
+}
