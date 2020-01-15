@@ -11,13 +11,13 @@ const param = {
       max: 20
     },
     z: {
-      default: 20,
+      default: 10,
       min: 1,
       max: 100
     }
   }
 };
-let scene, camera, renderer, controls, rings = [];
+let scene, camera, renderer, controls;
 
 function init () {
   scene = new THREE.Scene();
@@ -36,10 +36,32 @@ function init () {
   camera.position.y = param.camera.y.default;
   camera.position.z = param.camera.z.default;
 
+  //var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+  //scene.add( directionalLight );
+
   controls = new THREE.OrbitControls( camera, renderer.domElement );
   controls.update();
 }
 
+function createTriangle (p1, p2, p3) {
+  let geometry = new THREE.Geometry();
+  geometry.vertices.push(p1, p2, p3);
+  geometry.faces.push(new THREE.Face3(0, 1, 2));
+
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function randomRange (from, to) {
+  if (to > from) {
+    var init = Math.random() * (to - from);
+    return (from + init);
+  }
+}
+
+// planet
+let rings = [];
 function createPlanet () {
   var geometry = new THREE.SphereGeometry(4, 30, 30);
   var material = new THREE.MeshBasicMaterial({
@@ -86,24 +108,144 @@ function createPlanet () {
   scene.add(axes);
 }
 
-function creator () {
-  var geometry = new THREE.Geometry();
-  geometry.vertices.push(new THREE.Vector3(0, 0, 0)); // 0
-  geometry.vertices.push(new THREE.Vector3(10, 0, 0)); // 1
-  geometry.vertices.push(new THREE.Vector3(10, 5, 0)); // 2
-  geometry.vertices.push(new THREE.Vector3(0, 5, 0)); // 3
+// diamond
+let fragments = [];
+function creatorDiamond () {
+  const p1 = new THREE.Vector3(0, 2, 0); // 1 - top vertex
+  const p2 = new THREE.Vector3(-1, 0, -1); // 2
+  const p3 = new THREE.Vector3(1, 0, -1); // 3
+  const p4 = new THREE.Vector3(-1, 0, 1); // 4
+  const p5 = new THREE.Vector3(1, 0, 1); // 5
+  const p6 = new THREE.Vector3(0, -2, 0); // 6 - bottom vertex
 
-  geometry.faces.push(new THREE.Face3(0, 3, 1));
-  geometry.faces.push(new THREE.Face3(0, 2, 1));
-  geometry.faces.push(new THREE.Face3(3, 2, 1));
+  // top fragment
+  var geometry1 = createTriangle(p1, p2, p3); // back
+  var geometry2 = createTriangle(p1, p2, p4); // left
+  var geometry3 = createTriangle(p1, p3, p5); // right
+  var geometry4 = createTriangle(p1, p4, p5); // front
+  // bottom fragment
+  var geometry5 = createTriangle(p2, p3, p6); // back
+  var geometry6 = createTriangle(p2, p4, p6); // left
+  var geometry7 = createTriangle(p3, p5, p6); // right
+  var geometry8 = createTriangle(p4, p5, p6); // front
 
-  var material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-  var sphere = new THREE.Mesh(geometry, material);
-  scene.add(sphere);
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1), geometry1));
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(-1,0,0), geometry2));
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(1,0,0), geometry3));
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,1), geometry4));
+
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(0,-0.5,-1), geometry5));
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(-1,-0.5,0), geometry6));
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(1,-0.5,0), geometry7));
+  fragments.push(new Fragment(new THREE.Vector3(0,0,0), new THREE.Vector3(0,-0.5,1), geometry8));
+  
+  fragments.forEach(fragment => scene.add(fragment.shape));
+
+  var axesHelper = new THREE.AxesHelper( 5 );
+  scene.add( axesHelper );
 }
 
 function render() {
+  //fragments.forEach(fragment => fragment.move());
+
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(render);
 }
+
+function openn () {
+  fragments.forEach(fragment => fragment.open());
+}
+
+function closee () {
+  fragments.forEach(fragment => fragment.close());
+}
+
+//
+// custom camera, background, light
+function customBackground () {
+  scene.background = new THREE.Color(0x6c757d);
+  camera.position.z = 40;
+  camera.position.y = 10;
+  var directionalLight = new THREE.DirectionalLight( 0xffffff, .5 );
+  scene.add(directionalLight);
+}
+
+let cubes = [];
+const maxCube = 3;
+const PLANE = {
+  width: 50,
+  height: 50,
+  xRange: {
+    min: -(PLANE.width / 2),
+    max: (PLANE.width / 2)
+  },
+  zRange: {
+    min: -(PLANE.height / 2),
+    max: (PLANE.height / 2)
+  }
+};
+const CUBE = {
+  x: 10,
+  y: 3,
+  z: 5,
+  xRange: {
+    max: 20,
+    min: -20
+  },
+  zRange: {
+    max: 20,
+    min: -20
+  }
+};
+
+function createPlane () {
+  var geometry = new THREE.PlaneGeometry( PLANE.width, PLANE.height, (PLANE.width / 2), (PLANE.height / 2) );
+  var material = new THREE.MeshBasicMaterial({
+    side: THREE.DoubleSide,
+    color: 0xffffff,
+    wireframe: true
+  });
+  var p = new THREE.Mesh(geometry, material);
+  p.rotateX(-Math.PI*0.5);
+  scene.add(p);
+};
+
+function createCube () {
+  const geometry = new THREE.BoxGeometry(CUBE.x, CUBE.y, CUBE.z);
+  var material = new THREE.MeshPhongMaterial({
+    side: THREE.DoubleSide,
+    shininess: 100,
+    color: Math.random() * 0xffffff,
+    wireframe: false
+  });
+  var cube = new THREE.Mesh(geometry, material);
+  cube.position.x = (PLANE.xRange.min) - CUBE.x;
+  cube.position.z = 0;
+  cube.position.y = (CUBE.y*0.5); // cube will upper plane
+  cubes.push(cube);
+  scene.add(cube);
+  
+  /*for (let i = 0; i < maxCube; i++) {
+    var material = new THREE.MeshPhongMaterial({
+      side: THREE.DoubleSide,
+      shininess: 100,
+      color: Math.random() * 0xffffff,
+      wireframe: false
+    });
+    var cube = new THREE.Mesh(geometry, material);
+    cube.position.x = randomRange(-20,20);
+    cube.position.z = randomRange(-10,10);
+    cube.position.y = (yCube*0.5);
+    cubes.push(cube);
+    scene.add(cube);
+  }*/
+
+  /* while (cubes.length < 21) {
+      // material
+      var x = randomRange(-20,20);
+      var y
+
+    }
+  */
+};

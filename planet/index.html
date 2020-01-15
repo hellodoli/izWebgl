@@ -1,25 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="../style.css" />
-    <title>Planet</title>
-  </head>
 
-  <body>
-    <script src="../lib/jquery-3.3.1.min.js"></script>
-    <script src="../lib/three.min.js"></script>
-    <script src="../lib/controls/OrbitControls.js"></script>
-    <script src="index.js"></script>
-    <script>
-      $(document).ready(function() {
-        init();
-        //createPlanet();
-        creator();
-        render();
-      });
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="stylesheet" href="../lib/bootstrap.min.css" />
+  <link rel="stylesheet" href="../style.css" />
+  <title>Planet</title>
+</head>
+
+<body>
+  <div class="live-controls" style="display: none;">
+    <div class="btn-group-fixed">
+      <div class="form-group">
+        <button type="button" class="btn btn-primary" onclick="openn()">Open</button>
+        <button type="button" class="btn btn-dark" onclick="closee()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../lib/jquery-3.3.1.min.js"></script>
+  <script src="../lib/three.min.js"></script>
+  <script src="../lib/controls/OrbitControls.js"></script>
+  <script src="Fragment.js"></script>
+  <script src="index.js"></script>
+  <script>
+    $(document).ready(function () {
+      init();
+      //createPlanet();
+      //creatorDiamond();
+      customBackground();
+      createPlane();
+      createCube();
+
+      var axesHelper = new THREE.AxesHelper(50);
+      scene.add(axesHelper);
+
+      render();
+    });
+  </script>
+</body>
+
 </html>
