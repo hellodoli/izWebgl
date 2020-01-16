@@ -11,24 +11,19 @@
 </head>
 
 <body>
-  <div class="live-controls" style="display: none;">
-    <div class="btn-group-fixed">
-      <div class="form-group">
-        <button type="button" class="btn btn-primary" onclick="openn()">Open</button>
-        <button type="button" class="btn btn-dark" onclick="closee()">Close</button>
-      </div>
-    </div>
-  </div>
-
   <script src="../lib/jquery-3.3.1.min.js"></script>
   <script src="../lib/three.min.js"></script>
   <script src="../lib/controls/OrbitControls.js"></script>
-  <script src="Fragment.js"></script>
+  <script src="../helper.js"></script>
   <script src="index.js"></script>
   <script>
     $(document).ready(function () {
       init();
-      createPlanet();
+      customBackground();
+      createPlane();
+      createCube();
+      var axesHelper = new THREE.AxesHelper(50);
+      scene.add(axesHelper);
       render();
     });
   </script>
