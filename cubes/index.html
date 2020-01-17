@@ -1,31 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="../lib/bootstrap.min.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <title>Pyramid Cube</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <link rel="stylesheet" href="../lib/bootstrap.min.css" />
-  <link rel="stylesheet" href="../style.css" />
-  <title>Planet</title>
-</head>
-
-<body>
-  <script src="../lib/jquery-3.3.1.min.js"></script>
-  <script src="../lib/three.min.js"></script>
-  <script src="../lib/controls/OrbitControls.js"></script>
-  <script src="../helper.js"></script>
-  <script src="index.js"></script>
-  <script>
-    $(document).ready(function () {
-      init();
-      customBackground();
-      createPlane();
-      createCube();
-      
-      render();
-    });
-  </script>
-</body>
-
+  <body>
+    <div class="live-controls">
+      <div class="btn-group-fixed">
+        <form onsubmit="event.preventDefault()">
+          <div class="form-group">
+            <button type="button" onclick="deleteAll()">Delete All</button>
+            <button type="button" onclick="reBuild()">Build</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="../lib/jquery-3.3.1.min.js"></script>
+    <script src="../lib/three.min.js"></script>
+    <script src="../lib/controls/OrbitControls.js"></script>
+    <script src="../helper.js"></script>
+    <script src="index.js"></script>
+    <script>
+      $(document).ready(function() {
+        init();
+        customBackground();
+        createPlane();
+        build();
+        render();
+      });
+    </script>
+  </body>
 </html>

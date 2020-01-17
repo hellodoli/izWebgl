@@ -41,13 +41,12 @@ function init () {
   controls.update();
 };
 
-//
 // custom camera, background, light
 function customBackground () {
   scene.background = new THREE.Color(0x6c757d);
 
-  camera.position.z = 40;
-  camera.position.y = 10;
+  camera.position.z = 300;
+  camera.position.y = 100;
 
   var directionalLight = new THREE.DirectionalLight( 0xffffff, .5 );
   scene.add(directionalLight);
@@ -56,9 +55,18 @@ function customBackground () {
   scene.add(axesHelper);
 };
 
-// define default Plane, Cube
-let cubes = []; // list array store cube
-const maxCube = 3;
+// define default param
+let cubeLevel = {};
+let cubes = {
+  x: {
+    front: [],
+    back: []
+  },
+  y: {
+    front: [],
+    back: []
+  }
+};
 const CUBE = {
   x: 10,
   y: 3,
@@ -70,11 +78,17 @@ const CUBE = {
   zRange: {
     max: 20,
     min: -20
+  },
+  material: {
+    side: THREE.DoubleSide,
+    shininess: 100,
+    color: 0xffffff,
+    wireframe: false
   }
 };
 
-const widthPlane = 55;
-const heightPlane = 50;
+const widthPlane = 200;
+const heightPlane = 200;
 const PLANE = {
   width: widthPlane,
   height: heightPlane,
@@ -88,77 +102,181 @@ const PLANE = {
   }
 };
 
+const POS = {
+  x: 'X',
+  y: 'Y'
+};
+
 function createPlane () {
-  var geometry = new THREE.PlaneGeometry( PLANE.width, PLANE.height, (PLANE.width / 2), (PLANE.height / 2) );
-  var material = new THREE.MeshBasicMaterial({
+  const geometry = new THREE.PlaneGeometry( PLANE.width, PLANE.height, (PLANE.width / 2), (PLANE.height / 2) );
+  const material = new THREE.MeshBasicMaterial({
     side: THREE.DoubleSide,
     color: 0xffffff,
     wireframe: true
   });
-  var plane = new THREE.Mesh(geometry, material);
+  const plane = new THREE.Mesh(geometry, material);
   plane.rotateX(-Math.PI*0.5);
   scene.add(plane);
 };
 
-function createCube () {
-  const maxCubeAtXRound = parseInt(PLANE.width / CUBE.x);
-  const maxCubeAtX =  ((PLANE.width / CUBE.x) > maxCubeAtXRound) ? (maxCubeAtXRound + 1) : maxCubeAtXRound;
-  let i = 0;
-  while (i < maxCubeAtX) {
-    // khoảng cách từ 1 cube đến gốc tọa độ tính từ giữa cube đến gốc tọa độ
-    // chứ không phải từ bên phải (trái) cùng của cube
-    const cubePosX = PLANE.xRange.min + (CUBE.x / 2) + (i*CUBE.x);
-    let cubeX = 0;
-    if ((cubePosX + (CUBE.x / 2)) > PLANE.xRange.max) {
-      // cut cube x
-      cubeX = (CUBE.x / 2) + (PLANE.xRange.max - cubePosX);
-    } else {
-      cubeX = CUBE.x;
-    }
-    
-    const geometry = new THREE.BoxGeometry(cubeX, CUBE.y, CUBE.z);
-    const material = new THREE.MeshPhongMaterial({
-      side: THREE.DoubleSide,
-      shininess: 100,
-      color: Math.random() * 0xffffff,
-      wireframe: false
-    });
-    let cube = new THREE.Mesh(geometry, material);
-    cube.position.z = 0;
-    cube.position.x = (PLANE.xRange.min + (CUBE.x / 2) + (i*CUBE.x));
-    cube.position.y = (CUBE.y / 2); // cube will upper plane
-    if (i === 4) {
-      console.log(cube);
-    }
-    cubes.push(cube);
-    scene.add(cube);
-    i++;
+function makeCubeLevel (callback) {
+  // level X
+  const maxCubeLevelXRound = parseInt(PLANE.height / (CUBE.z * 2));
+  cubeLevel.x = [];
+  for (let i = 0; i < maxCubeLevelXRound; i++) {
+    cubeLevel.x[i] = { front : false, back: false };
   }
-  
-  /*for (let i = 0; i < maxCube; i++) {
-    var material = new THREE.MeshPhongMaterial({
-      side: THREE.DoubleSide,
-      shininess: 100,
-      color: Math.random() * 0xffffff,
-      wireframe: false
-    });
-    var cube = new THREE.Mesh(geometry, material);
-    cube.position.x = randomRange(-20,20);
-    cube.position.z = randomRange(-10,10);
-    cube.position.y = (yCube*0.5);
-    cubes.push(cube);
-    scene.add(cube);
-  }*/
 
-  /* while (cubes.length < 21) {
-      // material
-      var x = randomRange(-20,20);
-      var y
+  // level Z
+  const maxCubeLevelZRound = parseInt(PLANE.width / (CUBE.z * 2));
+  cubeLevel.y = [];
+  for (let i = 0; i < maxCubeLevelZRound; i++) {
+    cubeLevel.y[i] = { front : false, back: false };
+  }
+
+  callback(cubeLevel);
+};
+
+function createCubeRandom (isFront, level, pos) {
+  level = parseInt(level);
+  if (level >= (cubeLevel.x.length) || level < 0 || isNaN(level)) return;
+
+  const posType = isFront ? 'front' : 'back';
+  if (cubeLevel.x[level][posType] === true) return;
+  if (pos !== POS.x && pos !== POS.y) return;
+
+  let indexCube = -1; // cube index
+  let d = 0;
+  let cubeXPrev = 0; // sum of cube X (with pos = POS.x), sum of cube Z (with pos = POS.z)
+  let cubeX = 0;
+  let cubeY = 0;
+  let cubeZ = 0;
+  let limit = 0;
+  
+  // define cubeX, cubeY, cubeZ
+  if (pos === POS.x) {
+    cubeLevel.x[level][posType] = true;
+    cubeZ = CUBE.z;
+    cubeY = CUBE.y;
+    limit = PLANE.width - (2*level*cubeZ);
+    //cubeX = Math.round(randomRange(1, (limit / 2)));
+    cubes.x[posType][level] = [];
+  } else {
+    cubeLevel.y[level][posType] = true;
+    cubeX = CUBE.z;
+    cubeY = CUBE.y;
+    limit = PLANE.height - (2*(level + 1)*cubeX);
+    //cubeZ = Math.round(randomRange(1, (limit / 2)));
+    cubes.y[posType][level] = [];
+  }
+
+  while (d < limit) {
+    indexCube += 1;
+    if (pos === POS.x) {
+      cubeX = Math.round(randomRange(1, (limit / 2)));
+      d += cubeX;
+    } else {
+      cubeZ = Math.round(randomRange(1, (limit / 2)));
+      d += cubeZ;
     }
-  */
+
+    // cut last cube
+    if (d > limit) {
+      if (pos === POS.x) cubeX -= (d - limit);
+      else cubeZ -= (d - limit);
+      d = limit;
+    }
+
+    // create Cube
+    const geometry = new THREE.BoxGeometry(cubeX, cubeY, cubeZ);
+    CUBE.material.color = Math.random() * 0xffffff;
+    const material = new THREE.MeshPhongMaterial(CUBE.material);
+    const cube = new THREE.Mesh(geometry, material);
+
+    // setting position
+    const cubePosY = (cubeY / 2) + (level*cubeY);
+    let cubePosX;
+    let cubePosZ;
+    if (pos === POS.x) {
+      cubePosX = PLANE.xRange.min + (cubeZ*level) + cubeXPrev + (cubeX / 2);
+      cubePosZ = (isFront)
+        ? (PLANE.zRange.max - (cubeZ / 2) - (level*cubeZ))
+        : (PLANE.zRange.min + (cubeZ / 2) + (level*cubeZ));
+
+      cubeXPrev += cubeX;
+      cubes.x[posType][level].push(cube);
+    } else {
+      // front is left, back is right
+      cubePosX = (isFront)
+        ? (PLANE.xRange.max - (cubeX / 2) - (level*cubeX))
+        : (PLANE.xRange.min + (cubeX / 2) + (level*cubeX));
+      cubePosZ = PLANE.zRange.min + (cubeX*(level + 1)) + cubeXPrev + (cubeZ /2);
+
+      cubeXPrev += cubeZ;
+      cubes.y[posType][level].push(cube);
+    }
+
+    cube.position.x = cubePosX;
+    cube.position.y = cubePosY;
+    cube.position.z = cubePosZ;
+
+    scene.add(cube);
+  }
+};
+
+let isBuild = false;
+function build () {
+  if (cubes.x.front.length === 0 && cubes.y.front.length === 0) {
+    makeCubeLevel(cubeLevel => {
+      console.log("cubeLevel: ", cubeLevel);
+      for (let y = 0; y < cubeLevel.y.length; y++) {
+        createCubeRandom(false, y, POS.y);
+        createCubeRandom(true, y, POS.y);
+      }
+
+      for (let x = 0; x < cubeLevel.x.length; x++) {
+        createCubeRandom(false, x, POS.x);
+        createCubeRandom(true, x, POS.x);
+      }
+    });
+  }
 };
 
 function render () {
   requestAnimationFrame(render);
   renderer.render(scene, camera);
+};
+
+var time = 100;
+function doSetTimeout (i, cube, callback) {
+  setTimeout(function () {
+    scene.remove(cube);
+    if (typeof callback === 'function') {
+      callback();
+    }
+  }, (time*i));
+};
+
+function deleteAll () {
+  ['front','back'].map(posType => {
+    cubes.x[posType].forEach((cubeRow, i) => {
+      cubeRow.forEach(cube => doSetTimeout(i, cube));
+
+      setTimeout(function () {
+        cubes.y[posType].forEach((cubeRow, i) => {
+          cubeRow.forEach((cube, j) => doSetTimeout(i, cube, function () {
+            if (i === (cubes.y[posType].length - 1)) {
+              if (j === (cubes.y[posType][i].length - 1)) {
+                console.log('reset');
+              }
+            }
+          }));
+        });
+      }, ((cubes.x[posType].length - 1)*time));
+    });
+  });
+};
+
+function reBuild () {
+  build();
 };
