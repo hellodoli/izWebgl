@@ -20,18 +20,40 @@ const ControlItem = ({ label, type }) => (
   </div>
 );
 
-const ControlField = props => {
-  const { name, items } = props;
+class ControlField extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isOpen: false
+    };
+  }
 
-  return (
-    <fieldset>
-      <legend>
-        {name} <i className="fas fa-chevron-down"></i>
-      </legend>
-      {items.length > 0 &&
-        items.map(item => <ControlItem key={item.label} {...item} />)}
-    </fieldset>
-  );
-};
+  toggleControl = () => {
+    this.setState(prevState => ({
+      isOpen: !prevState.isOpen
+    }));
+  };
+
+  render() {
+    const { name, items } = this.props;
+    const isOpenKlass = this.state.isOpen ? " is-open" : "";
+    return (
+      <fieldset>
+        <legend>
+          <span>{name}</span>
+          <span className={`icon${isOpenKlass}`} onClick={this.toggleControl}>
+            <i className="fas fa-chevron-down"></i>
+          </span>
+        </legend>
+        {this.state.isOpen && (
+          <div>
+            {items.length > 0 &&
+              items.map(item => <ControlItem key={item.label} {...item} />)}
+          </div>
+        )}
+      </fieldset>
+    );
+  }
+}
 
 export default ControlField;
