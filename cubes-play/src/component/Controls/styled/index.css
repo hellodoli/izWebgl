@@ -1,0 +1,19 @@
+.live-controls-container {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  min-width: 320px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 4px;
+  z-index: 1000;
+  box-shadow: 3px 3px 5px 6px #ccc;
+}
+
+.live-controls-form legend {
+  font-size: 1rem;
+}
+
+.live-controls-form .form-group {
+  margin-bottom: .3125rem;
+}
