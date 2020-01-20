@@ -1,24 +1,50 @@
 import React, { Component } from "react";
+import { CONTROL } from "../../constants/three";
 
-const CONTROLTYPE = {
-  range: "range"
+import { ButtonGroup, Button } from "reactstrap";
+
+const ControlItem = ({
+  label,
+  type,
+  param,
+  indexParent,
+  indexChild,
+  changeInputControl,
+  color
+}) => {
+  return (
+    <React.Fragment>
+      {type === CONTROL.type.range && (
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label col-form-label-sm">
+            {label}
+          </label>
+          <div className="col-sm-8">
+            <input
+              className="form-control form-control-sm"
+              type="range"
+              min={param.min}
+              max={param.max}
+              value={param.default}
+              onChange={e => changeInputControl(indexParent, indexChild, e)}
+            />
+          </div>
+          <div className="col-sm-2">
+            <input
+              className="form-control form-control-sm"
+              type="text"
+              min={param.min}
+              max={param.max}
+              value={param.default}
+              onChange={e => changeInputControl(indexParent, indexChild, e)}
+            />
+          </div>
+        </div>
+      )}
+      {type === CONTROL.type.button && <Button color={color}>{label}</Button>}
+    </React.Fragment>
+  );
 };
-
-const ControlItem = ({ label, type }) => (
-  <div className="form-group row">
-    <label className="col-sm-2 col-form-label col-form-label-sm">{label}</label>
-    {type === CONTROLTYPE.range && (
-      <React.Fragment>
-        <div className="col-sm-8">
-          <input className="form-control form-control-sm" type="range" />
-        </div>
-        <div className="col-sm-2">
-          <input className="form-control form-control-sm" type="text" />
-        </div>
-      </React.Fragment>
-    )}
-  </div>
-);
 
 class ControlField extends Component {
   constructor() {
@@ -35,7 +61,11 @@ class ControlField extends Component {
   };
 
   render() {
-    const { name, items } = this.props;
+    const {
+      name,
+      items,
+      ...rest /* rest: indexParent, changeInputControl */
+    } = this.props;
     const isOpenKlass = this.state.isOpen ? " is-open" : "";
     return (
       <fieldset>
@@ -48,7 +78,9 @@ class ControlField extends Component {
         {this.state.isOpen && (
           <div>
             {items.length > 0 &&
-              items.map(item => <ControlItem key={item.label} {...item} />)}
+              items.map((item, i) => (
+                <ControlItem key={i} {...item} {...rest} indexChild={i} />
+              ))}
           </div>
         )}
       </fieldset>

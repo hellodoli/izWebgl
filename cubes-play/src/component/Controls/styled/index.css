@@ -1,13 +1,13 @@
 .live-controls-container {
-  position: fixed;
+  position: absolute;
   top: 10px;
   left: 10px;
-  min-width: 320px;
-  padding: 20px;
+  min-width: 600px;
+  padding: 1.25rem;
   background: #fff;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   z-index: 1000;
-  box-shadow: 3px 3px 5px 6px #ccc;
+  /*box-shadow: 3px 3px 5px 6px #ccc;*/
 }
 
 .live-controls-form legend {
@@ -19,10 +19,18 @@
 
 .live-controls-form legend .icon {
   display: block;
-  padding: .25rem;
-  margin-left: 1rem;
+  padding: 0.25rem;
+  margin-left: 0.75rem;
+}
+
+/*.live-controls-form legend .icon>i {
+  transition: transform .15s;
+}*/
+
+.live-controls-form legend .icon.is-open > i {
+  transform: rotate(180deg);
 }
 
 .live-controls-form .form-group {
-  margin-bottom: .3125rem;
+  margin-bottom: 0.3125rem;
 }

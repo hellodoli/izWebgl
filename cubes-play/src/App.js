@@ -1,12 +1,10 @@
 import React from "react";
-import Controls from "./component/Controls";
-import Cubes from "./component/Cubes";
+import Main from "./container/Main";
 
 function App() {
   return (
-    <div className="cubes-play-app">
-      <Controls />
-      <Cubes />
+    <div className="play-app" style={{ padding: "5%" }}>
+      <Main />
     </div>
   );
 }
