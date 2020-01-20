@@ -39,7 +39,7 @@ class Cubes extends Component {
       /* Default param setting */
       controlItem: [
         {
-          name: "Camera",
+          name: CONTROL.name.camera,
           items: [
             {
               type: CONTROL.type.range,
@@ -59,16 +59,17 @@ class Cubes extends Component {
           ]
         },
         {
-          name: "Play",
+          name: CONTROL.name.play,
           items: [
             {
               type: CONTROL.type.button,
               label: "Destroy",
-              color: "primary"
+              color: "danger"
             },
             {
               type: CONTROL.type.button,
-              label: "Build"
+              label: "Build",
+              color: "primary"
             }
           ]
         }
@@ -262,11 +263,16 @@ class Cubes extends Component {
     }
   };
 
-  destroyCubes = () => {
-    ["front", "back"].map(posType => {
-      this.cubes.x[posType].forEach((cubeRow, i) => {
-        cubeRow.forEach(cube => doSetTimeout(i, cube));
+  doSetTimeout = (i, cube, time = 100) => {
+    window.setTimeout(() => {
+      this.scene.remove(cube);
+    }, time * i);
+  };
 
+  destroyCubes = () => {
+    /*["front", "back"].map(posType => {
+      this.cubes.x[posType].forEach((cubeRow, i) => {
+        cubeRow.forEach(cube => this.doSetTimeout(i, cube));
         setTimeout(function() {
           this.cubes.y[posType].forEach((cubeRow, i) => {
             cubeRow.forEach((cube, j) =>
@@ -281,7 +287,8 @@ class Cubes extends Component {
           });
         }, (cubes.x[posType].length - 1) * time);
       });
-    });
+    });*/
+    console.log("play btn");
   };
 
   // Controls function
@@ -303,7 +310,7 @@ class Cubes extends Component {
     });
 
     // Setting live
-    if (controlItemClone[i].name === "Camera") {
+    if (controlItemClone[i].name === CONTROL.name.camera) {
       this.setCameraPosition(
         controlItemClone[i].items[0].param.default,
         controlItemClone[i].items[1].param.default,
@@ -333,6 +340,7 @@ class Cubes extends Component {
         <Controls
           controlItem={this.state.controlItem}
           changeInputControl={this.changeInputControl}
+          destroy={this.destroyCubes}
         />
       </div>
     );

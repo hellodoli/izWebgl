@@ -30,6 +30,10 @@ export const PLANE = {
 };
 
 export const CONTROL = {
+  name: {
+    camera: "Camera",
+    play: "Play"
+  },
   type: {
     range: "range",
     button: "button"

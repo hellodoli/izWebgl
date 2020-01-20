@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { CONTROL } from "../../constants/three";
-
 import { ButtonGroup, Button } from "reactstrap";
 
 const ControlItem = ({
@@ -10,6 +9,7 @@ const ControlItem = ({
   indexParent,
   indexChild,
   changeInputControl,
+  destroy,
   color
 }) => {
   return (
@@ -41,7 +41,11 @@ const ControlItem = ({
           </div>
         </div>
       )}
-      {type === CONTROL.type.button && <Button color={color}>{label}</Button>}
+      {type === CONTROL.type.button && (
+        <Button color={color} size="sm" onClick={destroy()}>
+          {label}
+        </Button>
+      )}
     </React.Fragment>
   );
 };
@@ -64,11 +68,11 @@ class ControlField extends Component {
     const {
       name,
       items,
-      ...rest /* rest: indexParent, changeInputControl */
+      ...rest /* rest: indexParent, changeInputControl, destroy */
     } = this.props;
     const isOpenKlass = this.state.isOpen ? " is-open" : "";
     return (
-      <fieldset>
+      <fieldset className={`live-controls-${name.toLowerCase()}`}>
         <legend>
           <span>{name}</span>
           <span className={`icon${isOpenKlass}`} onClick={this.toggleControl}>

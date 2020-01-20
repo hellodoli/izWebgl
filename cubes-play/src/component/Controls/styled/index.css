@@ -10,27 +10,35 @@
   /*box-shadow: 3px 3px 5px 6px #ccc;*/
 }
 
+/* Header */
 .live-controls-form legend {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   font-size: 1rem;
+  padding: .25rem .5rem;
+  border-radius: .25rem;
+  background-color: var(--cyan);
+  color: var(--white);
 }
 
 .live-controls-form legend .icon {
   display: block;
+  font-size: .75rem;
   padding: 0.25rem;
   margin-left: 0.75rem;
+  cursor: pointer;
 }
-
-/*.live-controls-form legend .icon>i {
-  transition: transform .15s;
-}*/
 
 .live-controls-form legend .icon.is-open > i {
   transform: rotate(180deg);
 }
 
 .live-controls-form .form-group {
-  margin-bottom: 0.3125rem;
+  margin-bottom: .3125rem;
+}
+
+/* Body */
+.live-controls-form .live-controls-play button + button {
+  margin-left: .3125rem;
 }

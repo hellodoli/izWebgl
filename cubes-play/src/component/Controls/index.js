@@ -8,7 +8,7 @@ class Controls extends Component {
   };
 
   render() {
-    const { controlItem, changeInputControl } = this.props;
+    const { controlItem, ...rest } = this.props;
     return (
       <div className="live-controls live-controls-container">
         <form className="live-controls-form" onSubmit={this.onSubmit}>
@@ -17,8 +17,8 @@ class Controls extends Component {
               <ControlField
                 key={i}
                 {...control} // control.name, control.items
+                {...rest} // changeInputControl, destroy
                 indexParent={i}
-                changeInputControl={changeInputControl}
               />
             ))}
         </form>
