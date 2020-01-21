@@ -38,6 +38,10 @@
   margin-bottom: .3125rem;
 }
 
+.live-controls-form legend + div{
+  margin-bottom: .75rem;
+}
+
 /* Body */
 .live-controls-form .live-controls-play button + button {
   margin-left: .3125rem;

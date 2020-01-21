@@ -17,7 +17,7 @@ class Controls extends Component {
               <ControlField
                 key={i}
                 {...control} // control.name, control.items
-                {...rest} // changeInputControl, destroy
+                {...rest} // changeInputControl, onClickControl
                 indexParent={i}
               />
             ))}

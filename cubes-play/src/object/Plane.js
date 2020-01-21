@@ -4,6 +4,14 @@ class Plane {
   constructor(width, height, color = 0xffffff) {
     this.width = width;
     this.height = height;
+    this.xRange = {
+      min: -(width / 2),
+      max: width / 2
+    };
+    this.zRange = {
+      min: -(height / 2),
+      max: height / 2
+    };
     this.color = color;
     this.makeShape();
   }
@@ -25,10 +33,18 @@ class Plane {
 
   setWidth(width) {
     this.width = width;
+    this.xRange = {
+      min: -(width / 2),
+      max: width / 2
+    };
   }
 
   setHeight(height) {
     this.height = height;
+    this.zRange = {
+      min: -(height / 2),
+      max: height / 2
+    };
   }
 
   setColor(color) {

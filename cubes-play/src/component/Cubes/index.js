@@ -12,22 +12,53 @@ import Controls from "../Controls";
 
 import "./styled/index.css";
 
-/* Custom camera param */
-const CAMERA_CUBES = {
+/* Custom default param */
+const CAMERA_PLAY = {
   x: {
+    label: "Camera X",
     default: 0,
     min: 1,
     max: 20
   },
   y: {
+    label: "Camera Y",
     default: 100,
     min: 50,
     max: 200
   },
   z: {
+    label: "Camera Z",
     default: 300,
     min: 100,
     max: 600
+  }
+};
+
+const BUTTON_PLAY = {
+  destroy: {
+    label: "Destroy",
+    color: "danger",
+    isDisabled: false
+  },
+  build: {
+    label: "Build",
+    color: "primary",
+    isDisabled: true
+  }
+};
+
+const PLANE_PLAY = {
+  width: {
+    label: "Plane width",
+    default: PLANE.width,
+    min: 50,
+    max: 200
+  },
+  height: {
+    label: "Plane height",
+    default: PLANE.height,
+    min: 50,
+    max: 200
   }
 };
 
@@ -36,40 +67,49 @@ class Cubes extends Component {
     super();
     this.canvasContainer = React.createRef();
     this.state = {
+      isDestroying: false,
       /* Default param setting */
       controlItem: [
-        {
+        /*{
           name: CONTROL.name.camera,
           items: [
             {
               type: CONTROL.type.range,
-              label: "Camera X",
-              param: CAMERA_CUBES.x
+              param: CAMERA_PLAY.x
             },
             {
               type: CONTROL.type.range,
-              label: "Camera Y",
-              param: CAMERA_CUBES.y
+              param: CAMERA_PLAY.y
             },
             {
               type: CONTROL.type.range,
-              label: "Camera Z",
-              param: CAMERA_CUBES.z
+              param: CAMERA_PLAY.z
             }
           ]
-        },
+        },*/
         {
           name: CONTROL.name.play,
           items: [
             {
               type: CONTROL.type.button,
-              label: "Destroy",
-              color: "danger"
+              param: BUTTON_PLAY.destroy
             },
             {
               type: CONTROL.type.button,
-              label: "Build",
-              color: "primary"
+              param: BUTTON_PLAY.build
+            }
+          ]
+        },
+        {
+          name: CONTROL.name.plane,
+          items: [
+            {
+              type: CONTROL.type.range,
+              param: PLANE_PLAY.width
+            },
+            {
+              type: CONTROL.type.range,
+              param: PLANE_PLAY.height
             }
           ]
         }
@@ -99,8 +139,8 @@ class Cubes extends Component {
   customSceneSetup = () => {
     //this.scene.background = new THREE.Color(0x6c757d);
 
-    this.camera.position.y = CAMERA_CUBES.y.default;
-    this.camera.position.z = CAMERA_CUBES.z.default;
+    this.camera.position.y = CAMERA_PLAY.y.default;
+    this.camera.position.z = CAMERA_PLAY.z.default;
 
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
     this.scene.add(directionalLight);
@@ -109,8 +149,11 @@ class Cubes extends Component {
     //scene.add(axesHelper);
   };
 
-  createPlane = () => {
-    this.plane = new Plane(PLANE.width, PLANE.height);
+  createPlane = (w, h) => {
+    if (this.plane) {
+      this.scene.remove(this.plane.shape);
+    }
+    this.plane = new Plane(w, h);
     this.plane.shape.rotateX(-Math.PI * 0.5);
     this.scene.add(this.plane.shape);
   };
@@ -134,14 +177,14 @@ class Cubes extends Component {
     };
 
     // level X
-    const maxCubeLevelXRound = parseInt(PLANE.height / (CUBE.z * 2));
+    const maxCubeLevelXRound = parseInt(this.plane.height / (CUBE.z * 2));
     this.cubeLevel.x = [];
     for (let i = 0; i < maxCubeLevelXRound; i++) {
       this.cubeLevel.x[i] = { front: false, back: false };
     }
 
     // level Z
-    const maxCubeLevelZRound = parseInt(PLANE.width / (CUBE.z * 2));
+    const maxCubeLevelZRound = parseInt(this.plane.width / (CUBE.z * 2));
     this.cubeLevel.y = [];
     for (let i = 0; i < maxCubeLevelZRound; i++) {
       this.cubeLevel.y[i] = { front: false, back: false };
@@ -166,19 +209,22 @@ class Cubes extends Component {
     let cubeZ = 0;
     let limit = 0;
 
+    const xRange = this.plane.xRange;
+    const zRange = this.plane.zRange;
+
     // define cubeX, cubeY, cubeZ
     if (pos === POS.x) {
       this.cubeLevel.x[level][posType] = true;
       cubeZ = CUBE.z;
       cubeY = CUBE.y;
-      limit = PLANE.width - 2 * level * cubeZ;
+      limit = this.plane.width - 2 * level * cubeZ;
       //cubeX = Math.round(randomRange(1, (limit / 2)));
       this.cubes.x[posType][level] = [];
     } else {
       this.cubeLevel.y[level][posType] = true;
       cubeX = CUBE.z;
       cubeY = CUBE.y;
-      limit = PLANE.height - 2 * (level + 1) * cubeX;
+      limit = this.plane.height - 2 * (level + 1) * cubeX;
       //cubeZ = Math.round(randomRange(1, (limit / 2)));
       this.cubes.y[posType][level] = [];
     }
@@ -215,20 +261,19 @@ class Cubes extends Component {
       let cubePosX;
       let cubePosZ;
       if (pos === POS.x) {
-        cubePosX = PLANE.xRange.min + cubeZ * level + cubeXPrev + cubeX / 2;
+        cubePosX = xRange.min + cubeZ * level + cubeXPrev + cubeX / 2;
         cubePosZ = isFront
-          ? PLANE.zRange.max - cubeZ / 2 - level * cubeZ
-          : PLANE.zRange.min + cubeZ / 2 + level * cubeZ;
+          ? zRange.max - cubeZ / 2 - level * cubeZ
+          : zRange.min + cubeZ / 2 + level * cubeZ;
 
         cubeXPrev += cubeX;
         this.cubes.x[posType][level].push(cube);
       } else {
         // front is left, back is right
         cubePosX = isFront
-          ? PLANE.xRange.max - cubeX / 2 - level * cubeX
-          : PLANE.xRange.min + cubeX / 2 + level * cubeX;
-        cubePosZ =
-          PLANE.zRange.min + cubeX * (level + 1) + cubeXPrev + cubeZ / 2;
+          ? xRange.max - cubeX / 2 - level * cubeX
+          : xRange.min + cubeX / 2 + level * cubeX;
+        cubePosZ = zRange.min + cubeX * (level + 1) + cubeXPrev + cubeZ / 2;
 
         cubeXPrev += cubeZ;
         this.cubes.y[posType][level].push(cube);
@@ -244,10 +289,7 @@ class Cubes extends Component {
 
   build = () => {
     const cubes = this.cubes;
-    if (
-      (cubes && cubes.x.front.length === 0 && cubes.y.front.length === 0) ||
-      cubes === undefined
-    ) {
+    if (cubes === undefined || Object.values(cubes).length === 0) {
       this.makeCubeLevel(cubeLevel => {
         console.log("cubeLevel: ", cubeLevel);
         for (let y = 0; y < cubeLevel.y.length; y++) {
@@ -263,37 +305,102 @@ class Cubes extends Component {
     }
   };
 
+  resetCubes = () => {
+    this.setState({ isDestroying: false });
+    this.cubeLevel = {};
+    this.cubes = {};
+  };
+
   doSetTimeout = (i, cube, time = 100) => {
     window.setTimeout(() => {
       this.scene.remove(cube);
     }, time * i);
   };
 
-  destroyCubes = () => {
-    /*["front", "back"].map(posType => {
-      this.cubes.x[posType].forEach((cubeRow, i) => {
-        cubeRow.forEach(cube => this.doSetTimeout(i, cube));
-        setTimeout(function() {
-          this.cubes.y[posType].forEach((cubeRow, i) => {
-            cubeRow.forEach((cube, j) =>
-              doSetTimeout(i, cube, function() {
-                if (i === this.cubes.y[posType].length - 1) {
-                  if (j === this.cubes.y[posType][i].length - 1) {
-                    console.log("reset");
+  destroyCubes = (time, callback) => {
+    if (!this.state.isDestroying) {
+      if (Object.values(this.cubes).length > 0) {
+        console.log("Before Destroy");
+        console.log("this.cubes: ", this.cubes);
+
+        this.setState({ isDestroying: true });
+
+        const cubeXBack = this.cubes.x.back;
+        let max = 0;
+        let sectionTime = 0;
+        // find section time
+        for (let i = 0; i < cubeXBack.length; i++) {
+          if (cubeXBack[i].length > max) {
+            max = cubeXBack[i].length;
+          }
+        }
+
+        sectionTime = max * time;
+
+        // destroy X
+        ["front", "back"].forEach(posType => {
+          this.cubes.x[posType].forEach((cubeRow, i) => {
+            cubeRow.forEach((cube, j) => this.doSetTimeout(j, cube, time));
+          });
+        });
+
+        // after X is destroyed, destroy Y
+        const cubesYBack = this.cubes.y.back;
+        let lastRow = false;
+        setTimeout(() => {
+          ["front", "back"].forEach(posType => {
+            const cubeRow = this.cubes.y[posType];
+            for (let i = 0; i < cubeRow.length; i++) {
+              // check last row
+              if (posType === "back" && i === cubesYBack.length - 1) {
+                lastRow = true;
+                // check last cube
+                if (cubesYBack[i].length === 0) {
+                  this.resetCubes();
+                  if (typeof callback === "function") {
+                    callback();
                   }
                 }
-              })
-            );
+              }
+              for (let j = 0; j < cubeRow[i].length; j++) {
+                this.doSetTimeout(j, cubeRow[i][j], time);
+                // check last cube
+                if (lastRow && j === cubeRow[i].length - 1) {
+                  this.resetCubes();
+                  if (typeof callback === "function") {
+                    callback();
+                  }
+                }
+              }
+            }
           });
-        }, (cubes.x[posType].length - 1) * time);
-      });
-    });*/
-    console.log("play btn");
+        }, sectionTime);
+      }
+    } else {
+      console.log("...destroying, please wait");
+    }
+  };
+
+  setCameraPosition = (type, value) => {
+    switch (type) {
+      case CAMERA_PLAY.x.label:
+        this.camera.position.x = value;
+        break;
+      case CAMERA_PLAY.y.label:
+        this.camera.position.y = value;
+        break;
+      case CAMERA_PLAY.z.label:
+        this.camera.position.z = value;
+        break;
+      default:
+        break;
+    }
   };
 
   // Controls function
   changeInputControl = (i, j, e) => {
     let value = e.target.value;
+
     if (!isNumber(value)) {
       alert("Input must be number");
       return;
@@ -311,36 +418,69 @@ class Cubes extends Component {
 
     // Setting live
     if (controlItemClone[i].name === CONTROL.name.camera) {
-      this.setCameraPosition(
-        controlItemClone[i].items[0].param.default,
-        controlItemClone[i].items[1].param.default,
-        controlItemClone[i].items[2].param.default
-      );
+      this.setCameraPosition(control.label, value);
+    }
+
+    if (controlItemClone[i].name === CONTROL.name.plane) {
+      if (control.label === PLANE_PLAY.width.label) {
+        const h = this.plane.height;
+        this.createPlane(value, h);
+      }
+
+      if (control.label === PLANE_PLAY.height.label) {
+        const w = this.plane.width;
+        this.createPlane(w, value);
+      }
     }
   };
 
-  setCameraPosition(x, y, z) {
-    this.camera.position.x = x;
-    this.camera.position.y = y;
-    this.camera.position.z = z;
-  }
+  onClickControl = (i, j) => {
+    let controlItemClone = this.state.controlItem.slice();
+    const control = controlItemClone[i].items[j].param;
+
+    if (controlItemClone[i].name === CONTROL.name.play) {
+      if (control.label === BUTTON_PLAY.destroy.label) {
+        this.destroyCubes(500, () => {
+          control.isDisabled = true;
+
+          // find button Build and turn off disabled
+          for (let z = 0; z < controlItemClone[i].items.length; z++) {
+            if (
+              controlItemClone[i].items[z].param.label ===
+              BUTTON_PLAY.build.label
+            ) {
+              controlItemClone[i].items[z].param.isDisabled = false;
+            }
+          }
+          this.setState({
+            controlItem: controlItemClone
+          });
+        });
+      } else if (control.label === BUTTON_PLAY.build.label) {
+        this.build();
+      }
+    }
+  };
 
   componentDidMount() {
-    console.log("this.canvasContainer: ", this.canvasContainer);
     this.sceneSetup();
     this.customSceneSetup();
-    this.createPlane();
+    this.createPlane(PLANE.width, PLANE.height);
     this.build();
     this.startAnimationLoop();
   }
 
   render() {
+    const isCanBuild =
+      this.cubes === undefined || Object.values(this.cubes).length === 0
+        ? true
+        : false;
     return (
       <div className="live-show" ref={this.canvasContainer}>
         <Controls
           controlItem={this.state.controlItem}
           changeInputControl={this.changeInputControl}
-          destroy={this.destroyCubes}
+          onClickControl={this.onClickControl}
         />
       </div>
     );

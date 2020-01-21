@@ -1,23 +1,21 @@
 import React, { Component } from "react";
 import { CONTROL } from "../../constants/three";
-import { ButtonGroup, Button } from "reactstrap";
+import { Button } from "reactstrap";
 
 const ControlItem = ({
-  label,
   type,
   param,
   indexParent,
   indexChild,
   changeInputControl,
-  destroy,
-  color
+  onClickControl
 }) => {
   return (
     <React.Fragment>
       {type === CONTROL.type.range && (
         <div className="form-group row">
           <label className="col-sm-2 col-form-label col-form-label-sm">
-            {label}
+            {param.label}
           </label>
           <div className="col-sm-8">
             <input
@@ -42,8 +40,13 @@ const ControlItem = ({
         </div>
       )}
       {type === CONTROL.type.button && (
-        <Button color={color} size="sm" onClick={destroy()}>
-          {label}
+        <Button
+          color={param.color}
+          size="sm"
+          onClick={() => onClickControl(indexParent, indexChild)}
+          disabled={param.isDisabled}
+        >
+          {param.label}
         </Button>
       )}
     </React.Fragment>
@@ -68,7 +71,7 @@ class ControlField extends Component {
     const {
       name,
       items,
-      ...rest /* rest: indexParent, changeInputControl, destroy */
+      ...rest /* rest: indexParent, changeInputControl, onClickControl */
     } = this.props;
     const isOpenKlass = this.state.isOpen ? " is-open" : "";
     return (
