@@ -1,12 +1,19 @@
-import React from "react";
+import React, { Component } from "react";
 import Main from "./container/Main";
+import { WindowSizeContext } from "./context";
 
-function App() {
-  return (
-    <div className="play-app" style={{ padding: "5%" }}>
-      <Main />
-    </div>
-  );
+class App extends Component {
+  render() {
+    let { pdGap } = this.context;
+    return (
+      <WindowSizeContext.Provider value={this.context}>
+        <div className="play-app" style={{ padding: `${pdGap * 100}%` }}>
+          <Main />
+        </div>
+      </WindowSizeContext.Provider>
+    );
+  }
 }
 
+App.contextType = WindowSizeContext;
 export default App;

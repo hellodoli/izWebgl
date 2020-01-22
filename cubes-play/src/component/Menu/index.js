@@ -10,45 +10,31 @@ class Menu extends Component {
         { key: 0, text: "Home", path: "/" },
         {
           key: 1,
-          isDisabled: true,
-          text: "3D Effect 01",
-          path: "/3d/fake01"
+          isDisabled: false,
+          text: "Diamond",
+          path: "/3d/diamond"
         },
         {
           key: 2,
-          isDisabled: true,
-          text: "3D Effect 02",
-          path: "/3d/fake02"
-        },
-        {
-          key: 3,
-          isDisabled: true,
-          text: "3D Effect 03",
-          path: "/3d/fake03"
-        },
-        {
-          key: 4,
           isDisabled: false,
           text: "Pyramid",
           path: "/3d/pyramid"
         },
         {
-          key: 5,
+          key: 3,
           isDisabled: true,
-          text: "3D Effect 05",
-          path: "3d/fake05"
+          text: "3D Effect 03",
+          path: "3d/fake03"
         },
         {
-          key: 6,
+          key: 4,
           isDisabled: true,
-          text: "3D Effect 06",
-          path: "3d/fake06"
+          text: "3D Effect 04",
+          path: "3d/fake04"
         }
       ]
     };
   }
-
-  onClickItem = index => {};
 
   render() {
     const { menu } = this.state;

@@ -30,7 +30,8 @@ const ControlItem = ({
           <div className="col-sm-2">
             <input
               className="form-control form-control-sm"
-              type="text"
+              step={param.step}
+              type="number"
               min={param.min}
               max={param.max}
               value={param.default}
